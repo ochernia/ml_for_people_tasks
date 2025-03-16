@@ -16,12 +16,10 @@ def split_data(df: pd.DataFrame, target_col: str, input_cols: List[str]) -> Tupl
         target_col].copy()
 
 
-def identify_column_types(df: pd.DataFrame) -> Tuple[List[str], List[str], List[str]]:
+def identify_column_types(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
     numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
     categorical_cols = df.select_dtypes(include='object').columns.tolist()
-    binary_numeric_cols = [col for col in numeric_cols if df[col].nunique() == 2]
-    numeric_cols = [col for col in numeric_cols if col not in binary_numeric_cols]
-    return numeric_cols, categorical_cols, binary_numeric_cols
+    return numeric_cols, categorical_cols
 
 
 def scale_numeric_features(df: pd.DataFrame, numeric_cols: List[str], scaler: StandardScaler) -> pd.DataFrame:
@@ -39,7 +37,7 @@ def preprocess_data(raw_df: pd.DataFrame, scale_numeric: bool = True) -> Dict[st
     input_cols = select_columns(raw_df)
     target_col = 'Exited'
     X_train, X_val, train_targets, val_targets = split_data(raw_df, target_col, input_cols)
-    numeric_cols, categorical_cols, _ = identify_column_types(X_train)
+    numeric_cols, categorical_cols = identify_column_types(X_train)
 
     scaler = StandardScaler().fit(X_train[numeric_cols]) if scale_numeric else None
     encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore').fit(X_train[categorical_cols])
@@ -64,7 +62,7 @@ def preprocess_data(raw_df: pd.DataFrame, scale_numeric: bool = True) -> Dict[st
 
 def preprocess_new_data(new_data: pd.DataFrame, encoder: OneHotEncoder, scaler: StandardScaler = None) -> pd.DataFrame:
     new_data = new_data.copy()
-    numeric_cols, categorical_cols, _ = identify_column_types(new_data)
+    numeric_cols, categorical_cols = identify_column_types(new_data)
 
     if scaler:
         numeric_cols = [col for col in numeric_cols if col != 'id']
