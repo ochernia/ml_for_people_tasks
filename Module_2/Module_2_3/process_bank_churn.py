@@ -2,38 +2,36 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.model_selection import train_test_split
-from typing import Tuple, List, Dict
 
 
-def select_columns(df: pd.DataFrame) -> List[str]:
+def select_columns(df):
     return list(df.columns)[3:-1]
 
 
-def split_data(df: pd.DataFrame, target_col: str, input_cols: List[str]) -> Tuple[
-    pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+def split_data(df, target_col, input_cols):
     train_df, val_df = train_test_split(df, test_size=0.2, random_state=42, stratify=df[target_col])
     return train_df[input_cols].copy(), val_df[input_cols].copy(), train_df[target_col].copy(), val_df[
         target_col].copy()
 
 
-def identify_column_types(df: pd.DataFrame) -> Tuple[List[str], List[str]]:
+def identify_column_types(df):
     numeric_cols = df.select_dtypes(include=np.number).columns.tolist()
     categorical_cols = df.select_dtypes(include='object').columns.tolist()
     return numeric_cols, categorical_cols
 
 
-def scale_numeric_features(df: pd.DataFrame, numeric_cols: List[str], scaler: StandardScaler) -> pd.DataFrame:
+def scale_numeric_features(df, numeric_cols, scaler):
     df[numeric_cols] = scaler.transform(df[numeric_cols])
     return df
 
 
-def encode_categorical_features(df: pd.DataFrame, categorical_cols: List[str], encoder: OneHotEncoder) -> pd.DataFrame:
+def encode_categorical_features(df, categorical_cols, encoder):
     encoded_cols = list(encoder.get_feature_names_out(categorical_cols))
     df[encoded_cols] = encoder.transform(df[categorical_cols])
     return df.drop(columns=categorical_cols)
 
 
-def preprocess_data(raw_df: pd.DataFrame, scale_numeric: bool = True) -> Dict[str, any]:
+def preprocess_data(raw_df, scale_numeric):
     input_cols = select_columns(raw_df)
     target_col = 'Exited'
     X_train, X_val, train_targets, val_targets = split_data(raw_df, target_col, input_cols)
@@ -60,7 +58,7 @@ def preprocess_data(raw_df: pd.DataFrame, scale_numeric: bool = True) -> Dict[st
     }
 
 
-def preprocess_new_data(new_data: pd.DataFrame, encoder: OneHotEncoder, scaler: StandardScaler = None) -> pd.DataFrame:
+def preprocess_new_data(new_data, encoder, scaler):
     new_data = new_data.copy()
     numeric_cols, categorical_cols = identify_column_types(new_data)
 
