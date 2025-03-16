@@ -64,7 +64,7 @@ def preprocess_data(raw_df: pd.DataFrame, scale_numeric: bool = True) -> Dict[st
 
 def preprocess_new_data(new_data: pd.DataFrame, encoder: OneHotEncoder, scaler: StandardScaler = None) -> pd.DataFrame:
     new_data = new_data.copy()
-    numeric_cols, categorical_cols = identify_column_types(new_data)
+    numeric_cols, categorical_cols, _ = identify_column_types(new_data)
 
     if scaler:
         numeric_cols = [col for col in numeric_cols if col != 'id']
